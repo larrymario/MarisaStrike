@@ -34,3 +34,11 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+
+# UnityChan2D
+Assets/UnityChan2D
+
+# Unnecessary Folders
+Library
+Temp
+obj
