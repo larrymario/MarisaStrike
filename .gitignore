@@ -42,3 +42,9 @@ Assets/UnityChan2D
 Library
 Temp
 obj
+
+# VS Project Files
+*.csproj
+*.sln
+MarisaStrike.userprefs
+MarisaStrike.v12.suo
