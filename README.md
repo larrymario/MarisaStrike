@@ -13,7 +13,7 @@ For English version，please read README-en.md.
 * 峨眉山角斗士 : 美工 数据库管理员
 * Scott.H : 软件工程师 测试工程师
 
-同时欢迎诸位的Pull Request。
+欢迎诸位的Pull Request。
 
 ## 注意事项
 本项目尚刚刚起步，目前专注于游戏逻辑的开发，所以美工任务尚未开始，故目前暂且使用UnityChan2D作为素材。最后会更改为自制素材。鉴于UnityChan的使用规约，相关内容没有包含在该Repository内，请到以下地址下载：
@@ -34,4 +34,5 @@ http://unity-chan.com/download/guideline.html
 
 总之希望诸位被引导至此或偶然路过的前辈能够给与我们帮助。
 
-——目前想要的帮助就是，这GitHub到底怎么玩……感觉好复杂……
+## 最新更新
+* 角色控制系统基本架构完成

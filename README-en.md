@@ -32,4 +32,5 @@ This is my Software Engineering course project, and my second game project. How 
 
 Anyway, we hope you can give us a helping hand on this project, whether you are led here or just passer-by.
 
---For now I want know how to use GitHub well...this seems complex...
+## Last Update
+* Basic Frame of Character Controller
