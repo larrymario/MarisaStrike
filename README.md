@@ -35,4 +35,6 @@ http://unity-chan.com/download/guideline.html
 总之希望诸位被引导至此或偶然路过的前辈能够给与我们帮助。
 
 ## 最新更新
-* 角色控制系统基本架构完成
+* 行走、跳跃动画完成（UnityChan图像素材不会在最终版使用）
+
+之前的更新见UPDATES.MD。

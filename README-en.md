@@ -33,4 +33,6 @@ This is my Software Engineering course project, and my second game project. How 
 Anyway, we hope you can give us a helping hand on this project, whether you are led here or just passer-by.
 
 ## Last Update
-* Basic Frame of Character Controller
+* Walking, Jumping Animation (UnityChan Sprite material will not be used in the final version)
+
+See UPDATES.md for earlier updates.

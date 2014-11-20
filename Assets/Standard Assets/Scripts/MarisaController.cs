@@ -32,7 +32,7 @@ public class MarisaController : MonoBehaviour {
 
         maxWalkSpeed = 12f;
         maxDashSpeed = 20f;
-        jumpPower = 10f;
+        jumpPower = 600f;
         repelForce = new Vector2(-4.5f, 5.4f);
         terrainLayer = 1 << LayerMask.NameToLayer("Terrain");
     }
@@ -179,8 +179,7 @@ public class MarisaController : MonoBehaviour {
                 charState = State.Jump;
         }
 
-        
-        
+               
 
         //State Processing
 
@@ -191,6 +190,11 @@ public class MarisaController : MonoBehaviour {
             case State.WalkShoot:
 
             case State.Walk:
+                marisaRigidbody2D.velocity = new Vector2(Input.GetAxis("Horizontal") * maxWalkSpeed,
+                    marisaRigidbody2D.velocity.y);
+                
+                break;
+            case State.AirDash:
             case State.AirWalk:
                 marisaRigidbody2D.velocity = new Vector2(Input.GetAxis("Horizontal") * maxWalkSpeed, 
                     marisaRigidbody2D.velocity.y);
@@ -198,9 +202,6 @@ public class MarisaController : MonoBehaviour {
             case State.Dash:
                 marisaRigidbody2D.velocity = new Vector2(Input.GetAxis("Horizontal") * maxDashSpeed, 
                     marisaRigidbody2D.velocity.y);
-                break;
-            case State.AirDash:
-               
                 break;
             case State.Turning:
                 isFacingLeft = !isFacingLeft;
@@ -211,20 +212,29 @@ public class MarisaController : MonoBehaviour {
                 //isOnGround = false;
                 marisaRigidbody2D.AddForce(Vector2.up * jumpPower);
                 charState = State.Air;
+                marisaAnimator.SetTrigger("Jump");
+                SendMessage("Jump", SendMessageOptions.DontRequireReceiver);
                 break;
             case State.Air:
                 marisaRigidbody2D.velocity = new Vector2(0, marisaRigidbody2D.velocity.y);
                 break;
         }
+
+        //Animation related
+
+        marisaAnimator.SetFloat("Horizontal", marisaRigidbody2D.velocity.x);
+        marisaAnimator.SetFloat("Vertical", marisaRigidbody2D.velocity.y);
     }
 
     void checkIsOnGround() {
         Vector2 pos = transform.position;
-        Vector2 leftup = new Vector2(pos.x + marisaCircleCollider2D.center.x - 0.2f * marisaCircleCollider2D.radius,
+        Vector2 leftup = new Vector2(pos.x + marisaCircleCollider2D.center.x - 0.95f * marisaCircleCollider2D.radius,
                                     pos.y + marisaCircleCollider2D.center.y);
-        Vector2 rightdown = new Vector2(pos.x + marisaCircleCollider2D.center.x + 0.2f * marisaCircleCollider2D.radius,
+        Vector2 rightdown = new Vector2(pos.x + marisaCircleCollider2D.center.x + 0.95f * marisaCircleCollider2D.radius,
                                     pos.y + marisaCircleCollider2D.center.y - marisaCircleCollider2D.radius);
+
         isOnGround = Physics2D.OverlapArea(leftup, rightdown, terrainLayer);
+        marisaAnimator.SetBool("isOnGround", isOnGround);
     }
 
     enum State
