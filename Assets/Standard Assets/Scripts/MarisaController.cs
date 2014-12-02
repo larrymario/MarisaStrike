@@ -14,13 +14,18 @@ public class MarisaController : MonoBehaviour {
     
     private uint keyCode;
     private uint keyHoldTime;
-    private uint timer;
     private List<uint> keyCodeQueue;
     private List<uint> keyHoldTimeQueue;
-    private State charState;
+    
+    private State charMoveState;
+    private State charJumpState;
+    private State charFireState;
+
     private bool isOnGround;
     private bool isInvincible;
     private bool isFacingLeft;
+
+    private uint jumpTimer;
 
     private Animator marisaAnimator;
     private BoxCollider2D marisaBoxCollider2D;
@@ -42,10 +47,16 @@ public class MarisaController : MonoBehaviour {
         keyHoldTime = 0;
         keyCodeQueue = new List<uint>(MAX_QUEUE_COUNT);
         keyHoldTimeQueue = new List<uint>(MAX_QUEUE_COUNT);
-        charState = State.Stand;
+
+        charMoveState = State.Stand;
+        charJumpState = State.Stand;
+        charFireState = State.Safe;
+
         isOnGround = false;
         isInvincible = false;
         isFacingLeft = false;
+
+        jumpTimer = 3;
 
         marisaAnimator = GetComponent<Animator>();
         marisaBoxCollider2D = GetComponent<BoxCollider2D>();
@@ -85,8 +96,10 @@ public class MarisaController : MonoBehaviour {
         GUI.Label(new Rect(20, 170, 100, 30), keyCodeQueue[MAX_QUEUE_COUNT - 9].ToString() + " " + keyHoldTimeQueue[MAX_QUEUE_COUNT - 9].ToString());
         GUI.Label(new Rect(20, 185, 100, 30), keyCodeQueue[MAX_QUEUE_COUNT - 10].ToString() + " " + keyHoldTimeQueue[MAX_QUEUE_COUNT - 10].ToString());
 
-        GUI.Label(new Rect(20, 215, 100, 30), charState.ToString());
-        GUI.Label(new Rect(20, 230, 100, 30), isOnGround.ToString());
+        GUI.Label(new Rect(20, 215, 100, 30), charMoveState.ToString());
+        GUI.Label(new Rect(20, 230, 100, 30), charJumpState.ToString());
+        GUI.Label(new Rect(20, 245, 100, 30), charFireState.ToString());
+        GUI.Label(new Rect(20, 260, 100, 30), isOnGround.ToString());
     }
 
     void GetInput() {
@@ -145,59 +158,71 @@ public class MarisaController : MonoBehaviour {
 
     void ProcessInput() {
 
-        //keyCode -> State
+        //charMoveState
 
         if ((keyCode & (uint)KeyMap.Forward) > 0) {
-            if ((keyCode & (uint)KeyMap.Fire) > 0) {
-                charState = isOnGround ?                                //WalkShoot: Forward & Shoot
-                    State.WalkShoot : State.AirWalkShoot;               //AirWalkShoot : WalkShoot in air
-            }
-            else {
-                charState = isOnGround ? State.Walk : State.AirWalk;
-            }
+                charMoveState = isOnGround ? State.Walk : State.AirWalk;
 
             if ((keyCodeQueue[MAX_QUEUE_COUNT - 1] == 0) &&             //Dash: Short Forward -> Short Idle -> Forward
                 (keyHoldTimeQueue[MAX_QUEUE_COUNT - 1] <= 8)) {
                 if (((keyCodeQueue[MAX_QUEUE_COUNT - 2] & (uint)KeyMap.Forward) > 0) && 
                     (keyHoldTimeQueue[MAX_QUEUE_COUNT - 2] <= 8)) {
-                    charState = isOnGround ? State.Dash : State.AirDash;
+                    charMoveState = isOnGround ? State.Dash : State.AirDash;
                 }
             }
         }
         else if ((keyCode & (uint)KeyMap.Backward) > 0) {
-            charState = State.Turning;
+            charMoveState = State.Turning;
         }
 
-        if ((keyCode & 254) == 0)
+        if ((keyCode & 254) == 0)                                       //254 -> 11111110
         {
-            charState = isOnGround ? State.Stand : State.Air;
+            charMoveState = isOnGround ? State.Stand : State.Air;
+
         }
 
-        if ((keyCode & (uint)KeyMap.Jump) > 0)
-        {
+
+
+
+        if ((keyCode & (uint)KeyMap.Jump) > 0) {
             if (isOnGround)
-                charState = State.Jump;
+                charJumpState = State.Jump;
+        }
+        else {
+            charJumpState = State.Stand;
+        }
+        
+               
+
+
+        //charFireState
+
+        if ((keyCode & (uint)KeyMap.Fire) > 0) {
+            charFireState = State.Fire;
+        }
+        else {
+            charFireState = State.Safe;
         }
 
-               
+        print(charMoveState);
 
         //State Processing
 
-        switch (charState) {
+        switch (charMoveState) {
             case State.Stand:
                 marisaRigidbody2D.velocity = new Vector2(0, marisaRigidbody2D.velocity.y);
                 break;
-            case State.WalkShoot:
-
             case State.Walk:
                 marisaRigidbody2D.velocity = new Vector2(Input.GetAxis("Horizontal") * maxWalkSpeed,
                     marisaRigidbody2D.velocity.y);
-                
                 break;
             case State.AirDash:
+                marisaRigidbody2D.velocity = new Vector2(Input.GetAxis("Horizontal") * maxDashSpeed,
+                marisaRigidbody2D.velocity.y);
+                break;
             case State.AirWalk:
                 marisaRigidbody2D.velocity = new Vector2(Input.GetAxis("Horizontal") * maxWalkSpeed, 
-                    marisaRigidbody2D.velocity.y);
+                marisaRigidbody2D.velocity.y);
                 break;
             case State.Dash:
                 marisaRigidbody2D.velocity = new Vector2(Input.GetAxis("Horizontal") * maxDashSpeed, 
@@ -208,16 +233,50 @@ public class MarisaController : MonoBehaviour {
                 Quaternion rot = transform.rotation;
                 transform.rotation = Quaternion.Euler(rot.x, isFacingLeft ? 180 : 0, rot.z);
                 break;
-            case State.Jump:
-                //isOnGround = false;
-                marisaRigidbody2D.AddForce(Vector2.up * jumpPower);
-                charState = State.Air;
-                marisaAnimator.SetTrigger("Jump");
-                SendMessage("Jump", SendMessageOptions.DontRequireReceiver);
-                break;
+            
             case State.Air:
                 marisaRigidbody2D.velocity = new Vector2(0, marisaRigidbody2D.velocity.y);
                 break;
+        }
+
+        switch (charJumpState) {
+            case State.Jump:
+                if (jumpTimer > 0) {
+                    if (jumpTimer == 3) {
+                        marisaAnimator.SetTrigger("Jump");
+                        SendMessage("Jump", SendMessageOptions.DontRequireReceiver);
+                    }
+
+                    marisaRigidbody2D.AddForce(Vector2.up * jumpPower);
+                    switch (charMoveState) {
+                        case State.Stand:
+                            charMoveState = State.Air;
+                            break;
+                        case State.Walk:
+                            charMoveState = State.AirWalk;
+                            break;
+                        case State.Dash:
+                            charMoveState = State.AirDash;
+                            break;
+
+                    }
+
+                    jumpTimer--;
+                }
+                break;
+                
+        }
+
+        switch (charFireState) {
+            case State.Fire:
+
+                break;
+        }
+
+        //Timer reset
+
+        if (charJumpState != State.Jump) {
+            jumpTimer = 3;
         }
 
         //Animation related
@@ -228,13 +287,20 @@ public class MarisaController : MonoBehaviour {
 
     void checkIsOnGround() {
         Vector2 pos = transform.position;
-        Vector2 leftup = new Vector2(pos.x + marisaCircleCollider2D.center.x - 0.95f * marisaCircleCollider2D.radius,
+        Vector2 leftup = new Vector2(pos.x + marisaCircleCollider2D.center.x - 0.98f * marisaCircleCollider2D.radius,
                                     pos.y + marisaCircleCollider2D.center.y);
-        Vector2 rightdown = new Vector2(pos.x + marisaCircleCollider2D.center.x + 0.95f * marisaCircleCollider2D.radius,
-                                    pos.y + marisaCircleCollider2D.center.y - marisaCircleCollider2D.radius);
+        Vector2 rightdown = new Vector2(pos.x + marisaCircleCollider2D.center.x + 0.98f * marisaCircleCollider2D.radius,
+                                    pos.y + marisaCircleCollider2D.center.y - 1.1f * marisaCircleCollider2D.radius);
 
         isOnGround = Physics2D.OverlapArea(leftup, rightdown, terrainLayer);
         marisaAnimator.SetBool("isOnGround", isOnGround);
+    }
+
+    IEnumerator yieldTest()
+    {
+        print("wait2");
+        yield return new WaitForSeconds(1);
+        print("waited");
     }
 
     enum State
@@ -244,14 +310,16 @@ public class MarisaController : MonoBehaviour {
         Walk,
         Turning,
         Shoot,
-        WalkShoot,
         Dash,
-        Jump,
         Air,
         AirWalk,
-        AirWalkShoot,
         AirDash,
-        Damage
+        Damage,
+
+        Jump,
+
+        Safe,
+        Fire
     };
 
     enum KeyMap

@@ -13,6 +13,9 @@ Please read documents in Docs folder for details.
 
 Pull Requests are highly welcomed.
 
+## Plugins
+* iBoxDB (Database)
+
 ## Notes
 This project is still at beginning stage, thus the art designing work has not really started. For the time being, UnityChan2D is used as sprite materials. This will be replaced by selfmade material later. According to the usage licence of UnityChan, Related contents are not include in this repository, please download it from below:
 
@@ -33,6 +36,7 @@ This is my Software Engineering course project, and my second game project. How 
 Anyway, we hope you can give us a helping hand on this project, whether you are led here or just passer-by.
 
 ## Last Update
-* Walking, Jumping Animation (UnityChan Sprite material will not be used in the final version)
+* Camera control updated
+* iBoxDB plugin attached
 
 See UPDATES.md for earlier updates.

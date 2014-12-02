@@ -40,12 +40,16 @@ Assets/UnityChan
 Assets/UnityChan2D
 
 # Unnecessary Folders
+Bin
 Library
 Temp
 obj
 
-# VS Project Files
+# VS Project Related
 *.csproj
 *.sln
 MarisaStrike.userprefs
 MarisaStrike.v12.suo
+.unityproj
+Assets/UnityVS
+Assets/UnityVS.meta
