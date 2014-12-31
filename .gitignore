@@ -50,6 +50,10 @@ obj
 *.sln
 MarisaStrike.userprefs
 MarisaStrike.v12.suo
-.unityproj
+*.unityproj
 Assets/UnityVS
 Assets/UnityVS.meta
+*.suo
+*.unityproj
+Assembly-UnityScript-firstpass-vs.unityproj
+Assembly-UnityScript-firstpass-vs.unityproj

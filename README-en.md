@@ -8,13 +8,13 @@ Please read documents in Docs folder for details.
 
 ## Developers
 * L.M : Leader, Software engineer
-* 峨眉山角斗士 : Art Design, Database Administrator
-* Scott.H : Software Engineer, Test Engineer
+* lizhen2013 : Art Design, Database Administrator
+* ScottFoH : Software Engineer, Test Engineer
 
 Pull Requests are highly welcomed.
 
 ## Plugins
-* iBoxDB (Database)
+* SQLite (Database)
 
 ## Notes
 This project is still at beginning stage, thus the art designing work has not really started. For the time being, UnityChan2D is used as sprite materials. This will be replaced by selfmade material later. According to the usage licence of UnityChan, Related contents are not include in this repository, please download it from below:
@@ -31,12 +31,12 @@ Download this project and open it in unity, then import UnityChan2D.unitypackage
 
 ## Trivia and small talks
 Hello or Hello again, this is L.M. Thank you for viewing this repository.
-This is my Software Engineering course project, and my second game project. How about the first one? Well, I have abandoned it for about 1 year for many reasons. The incentive factor is the leave of art design, but for now i don't feel like blaming others. Mainly because I myself lack motivation. But now hey, this is course project. I will fail the course if I give up, so I force myself to have no choice. I really don't want to give up once again.
+Long time since last commit, but I haven't given up! It's just because I got a bunch of course projects to finish...
+The last commit have finished the main framework of this game. Please read the code if interested. Comments welcome.
 
 Anyway, we hope you can give us a helping hand on this project, whether you are led here or just passer-by.
 
 ## Last Update
-* Camera control updated
-* iBoxDB plugin attached
+* A lot of, see UPDATES.md for details.
 
 See UPDATES.md for earlier updates.
