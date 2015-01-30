@@ -32,7 +32,7 @@ namespace MarisaStrike {
 
         void OnTriggerEnter2D(Collider2D other) {
             if (other.tag == "Player") {
-                other.GetComponent<Marisa>().changeWeapon(type);
+                other.GetComponent<Marisa>().ChangeWeapon(type);
                 Destroy(gameObject);
             }
             

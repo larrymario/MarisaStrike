@@ -6,7 +6,7 @@ using System.Data.SQLite;
 
 namespace MarisaStrike {
     
-    public class Marisa : MonoBehaviour, IPlayer {
+    public class Marisa : MonoBehaviour, ICharacter {
 
         private const int MAX_QUEUE_COUNT = 20;
 
@@ -21,6 +21,8 @@ namespace MarisaStrike {
         private uint keyHoldTime;
         private List<uint> keyCodeQueue;
         private List<uint> keyHoldTimeQueue;
+        private float horizontalInput;
+        private float verticalInput;
 
         private CharState charMoveState;
         private CharState charJumpState;
@@ -31,9 +33,6 @@ namespace MarisaStrike {
         private bool isInvincible;
         private bool isFacingLeft;
         private bool isControllable;
-
-        private float horizontalInput;
-        private float verticalInput;
 
         private int fireTimer;
         private int fireCount;
@@ -60,7 +59,7 @@ namespace MarisaStrike {
 
 
 
-        public int getDamaged(int damage) {
+        public int GetDamaged(int damage) {
             if ((!isInvincible) && (charMoveState != CharState.Damaged) && (charMoveState != CharState.Defeated)) {
                 HP -= damage;
                 if (HP > 0) {
@@ -75,7 +74,7 @@ namespace MarisaStrike {
 
 
 
-        public void setControllability(bool para) {
+        public void SetControllability(bool para) {
             isControllable = para;
             if (para == false) {
                 for (int i = 0; i < MAX_QUEUE_COUNT; i++) {
@@ -94,7 +93,7 @@ namespace MarisaStrike {
 
 
 
-        public void changeWeapon(CharacterInfo.FireType type) {
+        public void ChangeWeapon(CharacterInfo.FireType type) {
             currentFire = type;
             if (currentFire == CharacterInfo.FireType.Weapon1) {
                 fireDelay = weapon1FireDelay;
@@ -118,7 +117,7 @@ namespace MarisaStrike {
 
         void Awake() {
 
-            loadEquipmentSettings();
+            LoadEquipmentSettings();
 
             keyCode = 0;
             keyHoldTime = 0;
@@ -134,7 +133,7 @@ namespace MarisaStrike {
 
         //Load equipmetnt settings from database
 
-        void loadEquipmentSettings() {
+        void LoadEquipmentSettings() {
             normalFire = Resources.Load<Rigidbody2D>("BulletSmall");
             normalFireDelay = 8;
             weapon1Fire = Resources.Load<Rigidbody2D>("BulletSmall");
@@ -208,7 +207,7 @@ namespace MarisaStrike {
                 GetInput();
             }
             ProcessInput();
-            checkIsOnGround();
+            CheckIsOnGround();
         }
         
 
@@ -465,7 +464,7 @@ namespace MarisaStrike {
 
 
 
-        void checkIsOnGround() {
+        void CheckIsOnGround() {
             Vector2 pos = transform.position;
             Vector2 leftup = new Vector2(pos.x + playerCircleCollider2D.center.x - 0.98f * playerCircleCollider2D.radius,
                                         pos.y + playerCircleCollider2D.center.y);

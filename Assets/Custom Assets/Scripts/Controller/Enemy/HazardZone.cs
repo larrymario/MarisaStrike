@@ -44,7 +44,7 @@ namespace MarisaStrike {
 
         void OnTriggerEnter2D(Collider2D other) {
             if ((other.tag == "Player")) {
-                ExecuteEvents.Execute<IPlayer>(other.gameObject, null, (x, y) => x.getDamaged(damage));
+                ExecuteEvents.Execute<ICharacter>(other.gameObject, null, (x, y) => x.GetDamaged(damage));
             }
 
         }

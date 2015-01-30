@@ -53,14 +53,14 @@ namespace MarisaStrike {
                         timer++;
                         if (timer == 150) {
                             startText.enabled = false;
-                            player.GetComponent<Marisa>().setControllability(true);
+                            player.GetComponent<Marisa>().SetControllability(true);
                             state = CharacterInfo.SceneState.Active;
                             timer = 0;
                         }
                         break;
                     case CharacterInfo.SceneState.Clear:
                         if (timer == 0) {
-                            player.GetComponent<Marisa>().setControllability(false);
+                            player.GetComponent<Marisa>().SetControllability(false);
                             clearText.enabled = true;
                         }
                         if (timer == 240) {
