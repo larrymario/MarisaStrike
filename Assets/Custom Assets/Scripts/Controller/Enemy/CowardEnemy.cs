@@ -4,42 +4,9 @@ using System.Collections.Generic;
 
 namespace MarisaStrike {
 
-    public class CowardEnemy : MonoBehaviour, IEnemy {
+    public class CowardEnemy : Enemy {
 
-        public int initialHP;
         public int turnTime;
-        public float speed;
-        public Rigidbody2D dropItem = null;
-
-        private int HP;
-        private EnemyInfo.State state;
-        private int moveTimer;
-        private bool isFacingLeft;
-        private List<GameObject> detectedObjects;
-
-        private Rigidbody2D enemyRigidbody;
-        
-
-
-        public int getDamaged(int damage) {
-            HP -= damage;
-            
-            return HP;  
-        }
-
-
-
-        public void AddDetectedObject(GameObject obj) {
-            detectedObjects.Add(obj);
-        }
-
-
-
-        public void RemoveDetectedObject(GameObject obj) {
-            detectedObjects.Remove(obj);
-        }
-
-
 
         void Start() {
             HP = initialHP;

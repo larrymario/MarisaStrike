@@ -2,13 +2,12 @@
 
 namespace MarisaStrike {
 
-    public class PowerUpItem : MonoBehaviour {
+    public class PowerUpItem : Item {
 
         public CharacterInfo.FireType type;
 
         private bool isMovingUp;
-        private Rigidbody2D itemRigidbody;
-
+        
 
 
         void Start() {

@@ -2,12 +2,11 @@
 
 namespace MarisaStrike {
 
-    public class PackageItem : MonoBehaviour {
+    public class PackageItem : Item {
 
         public string equipmentName;
 
         private bool isMovingUp;
-        private Rigidbody2D itemRigidbody;
 
 
 

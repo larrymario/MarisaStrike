@@ -4,43 +4,12 @@ using System.Collections.Generic;
 
 namespace MarisaStrike {
 
-    public class ToughEnemy : MonoBehaviour, IEnemy {
+    public class ToughEnemy : Enemy {
 
-        public int initialHP;
-        public float speed;
         public Rigidbody2D bullet;
         public int fireDelay;
-        public Rigidbody2D dropItem = null;
 
-        private int HP;
-        private EnemyInfo.State state;
-        private int moveTimer;
-        private bool isFacingLeft;
-        private List<GameObject> detectedObjects;
         private GameObject player;
-
-        //private Rigidbody2D enemyRigidbody;
-
-
-
-        public int getDamaged(int damage) {
-            HP -= damage;
-            return HP;
-        }
-
-
-
-        public void AddDetectedObject(GameObject obj) {
-            detectedObjects.Add(obj);
-        }
-
-
-
-        public void RemoveDetectedObject(GameObject obj) {
-            detectedObjects.Remove(obj);
-        }
-
-
 
         void Start() {
             HP = initialHP;
@@ -49,7 +18,6 @@ namespace MarisaStrike {
             isFacingLeft = true;
             detectedObjects = new List<GameObject>();
 
-            //enemyRigidbody = GetComponent<Rigidbody2D>();
         }
 
 
