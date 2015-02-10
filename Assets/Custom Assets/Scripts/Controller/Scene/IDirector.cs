@@ -4,6 +4,7 @@ namespace MarisaStrike {
 
     public interface IDirector : IEventSystemHandler {
 
-        void changeState(CharacterInfo.SceneState state);
+        void changeState(SceneInfo.SceneState state);
+
     }
 }

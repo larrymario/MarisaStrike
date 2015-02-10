@@ -12,12 +12,12 @@ namespace MarisaStrike {
         public Text gameoverText;
         public RawImage mask;
 
-        private CharacterInfo.SceneState state;
+        private SceneInfo.SceneState state;
         private int timer;
 
 
 
-        public void changeState(CharacterInfo.SceneState state) {
+        public void changeState(SceneInfo.SceneState state) {
             this.state = state;
             
         }
@@ -28,7 +28,7 @@ namespace MarisaStrike {
             startText.enabled = false;
             clearText.enabled = false;
             mask.color = new Color(0f, 0f, 0f, 1f);
-            state = CharacterInfo.SceneState.Opening;
+            state = SceneInfo.SceneState.Opening;
             timer = 0;
         }
 
@@ -40,9 +40,9 @@ namespace MarisaStrike {
 
 
         void FixedUpdate() {
-            if (state != CharacterInfo.SceneState.Active) {
+            if (state != SceneInfo.SceneState.Active) {
                 switch (state) {
-                    case CharacterInfo.SceneState.Opening:
+                    case SceneInfo.SceneState.Opening:
                         if (timer < 60) {
                             mask.color = new Color(0f, 0f, 0f, mask.color.a - 0.01666f);
                         }
@@ -54,11 +54,11 @@ namespace MarisaStrike {
                         if (timer == 150) {
                             startText.enabled = false;
                             player.GetComponent<Marisa>().SetControllability(true);
-                            state = CharacterInfo.SceneState.Active;
+                            state = SceneInfo.SceneState.Active;
                             timer = 0;
                         }
                         break;
-                    case CharacterInfo.SceneState.Clear:
+                    case SceneInfo.SceneState.Clear:
                         if (timer == 0) {
                             player.GetComponent<Marisa>().SetControllability(false);
                             clearText.enabled = true;
@@ -75,7 +75,7 @@ namespace MarisaStrike {
                         }
                         timer++;
                         break;
-                    case CharacterInfo.SceneState.GameOver:
+                    case SceneInfo.SceneState.GameOver:
 
                         break;
                 }
@@ -88,5 +88,6 @@ namespace MarisaStrike {
 
 
     }
+
 
 }

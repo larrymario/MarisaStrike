@@ -14,7 +14,7 @@ namespace MarisaStrike {
             moveTimer = 0;
             isFacingLeft = true;
             detectedObjects = new List<GameObject>();
-
+            
             enemyRigidbody = GetComponent<Rigidbody2D>();
         }
 
