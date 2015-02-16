@@ -26,14 +26,13 @@ namespace MarisaStrike {
 
         private MoveState charMoveState;
         private JumpState charJumpState;
-        private MoveState charFireState;
+        private FireState charFireState;
         private DirectionState charDirectionState;
         private DamageState charDamageState;
 
         private CharacterInfo.FireType currentFire;
 
         private bool isOnGround;
-        private bool isInvincible;
         private bool isFacingLeft;
         private bool isControllable;
 
@@ -42,7 +41,10 @@ namespace MarisaStrike {
         private int fireDelay;
         private int jumpTimer;
         private int repelTimer;
-        private int invinTimer;
+        private int mutekiTimer;
+
+        private int repelTime;
+        private int mutekiTime;
 
         private Animator playerAnimator;
         //private BoxCollider2D playerBoxCollider2D;
@@ -56,20 +58,17 @@ namespace MarisaStrike {
         private Rigidbody2D weapon1Fire;
         private int weapon1FireDelay;
         private int weapon1FireCount;
-
-        private int repelTime;
-        private int invinTime;
         
 
 
         public int GetDamaged(int damage) {
-            if ((!isInvincible) && (charMoveState != MoveState.Damaged) && (charMoveState != MoveState.Defeated)) {
+            if ((charDamageState != DamageState.Muteki) && (charDamageState != DamageState.Damaged) && (charDamageState != DamageState.Defeated)) {
                 HP -= damage;
                 if (HP > 0) {
-                    charMoveState = MoveState.Damaged;
+                    charDamageState = DamageState.Damaged;
                 }
                 else {
-                    charMoveState = MoveState.Defeated;
+                    charDamageState = DamageState.Defeated;
                 }
             }
             return HP;
@@ -86,7 +85,7 @@ namespace MarisaStrike {
                 }
                 charMoveState = MoveState.Stand;
                 charJumpState = JumpState.Idle;
-                charFireState = MoveState.Safe;
+                charFireState = FireState.Safe;
                 horizontalInput = 0;
                 verticalInput = 0;
             }
@@ -134,19 +133,18 @@ namespace MarisaStrike {
             weapon1FireDelay = 6;
             weapon1FireCount = 50;
             repelTime = 30;
-            invinTime = 180;
+            mutekiTime = 180;
         }
         
         void Start() {
             charMoveState = MoveState.Stand;
             charJumpState = JumpState.Idle;
-            charFireState = MoveState.Safe;
-            charDamageState = DamageState.Ok;
+            charFireState = FireState.Safe;
             charDirectionState = DirectionState.Forward;
+            charDamageState = DamageState.Ok;
             currentFire = CharacterInfo.FireType.Normal;
 
             isOnGround = false;
-            isInvincible = false;
             isFacingLeft = false;
             isControllable = false;
 
@@ -155,7 +153,7 @@ namespace MarisaStrike {
             fireDelay = normalFireDelay;
             jumpTimer = 0;
             repelTimer = 0;
-            invinTimer = 0;
+            mutekiTimer = 0;
 
             playerAnimator = GetComponent<Animator>();
             //playerBoxCollider2D = GetComponent<BoxCollider2D>();
@@ -183,10 +181,6 @@ namespace MarisaStrike {
             GUI.Label(new Rect(20, 230, 100, 30), charJumpState.ToString());
             GUI.Label(new Rect(20, 245, 100, 30), charFireState.ToString());
             GUI.Label(new Rect(20, 260, 100, 30), fireCount.ToString());
-        }
-        
-        void Update() {
-
         }
         
         void FixedUpdate() {
@@ -255,48 +249,18 @@ namespace MarisaStrike {
         
         void ProcessInput() {
 
-            if ((charMoveState != MoveState.Damaged) && (charMoveState != MoveState.Defeated)) {
-
-                /*
-                //charMoveState
-
-                if ((keyCode & (uint)KeyMap.Forward) > 0) {
-                    charMoveState = isOnGround ? MoveState.Walk : MoveState.AirWalk;
-
-                    if ((keyCodeQueue[MAX_QUEUE_COUNT - 1] == (uint)KeyMap.Idle) &&             //Dash: Short Forward -> Short Idle -> Forward
-                        (keyHoldTimeQueue[MAX_QUEUE_COUNT - 1] <= 8)) {
-                        if (((keyCodeQueue[MAX_QUEUE_COUNT - 2] & (uint)KeyMap.Forward) > 0) &&
-                            (keyHoldTimeQueue[MAX_QUEUE_COUNT - 2] <= 8)) {
-                            charMoveState = isOnGround ? MoveState.Dash : MoveState.AirDash;
-                        }
-                    }
-
-                }
-                else if ((keyCode & (uint)KeyMap.Backward) > 0) {
-                    //charMoveState = MoveState.Turning;
-                }
-
-                if ((keyCode & 254) == 0)                                       //254 -> 11111110
-                {
-                    //charMoveState = isOnGround ? MoveState.Stand : MoveState.Air;
-
-                }
-                */
-
-
-
-
+            //if ((charMoveState != MoveState.Damaged) && (charMoveState != MoveState.Defeated)) {
 
                 //charFireState
 
                 if ((keyCode & (uint)KeyMap.Fire) > 0) {
-                    charFireState = MoveState.Fire;
+                    charFireState = FireState.Fire;
                 }
                 else {
-                    charFireState = MoveState.Safe;
+                    charFireState = FireState.Safe;
                 }
 
-            }
+            //}
 
             //New
             
@@ -335,7 +299,12 @@ namespace MarisaStrike {
                         charMoveState = MoveState.Air;
                     }
                     else if (isOnGround) {
-                        charMoveState = MoveState.Walk;
+                        if (playerRigidbody2D.velocity.x == horizontalInput * maxDashSpeed) {
+                            charMoveState = MoveState.Dash;
+                        }
+                        else { 
+                            charMoveState = MoveState.Walk;
+                        }
                     }
                     break;
                 case MoveState.Dash:
@@ -343,163 +312,194 @@ namespace MarisaStrike {
                         charMoveState = MoveState.Stand;
                     }
                     else if (!isOnGround) {
-                        charMoveState = MoveState.AirWalk;
+                        charMoveState = MoveState.AirDash;
+                    }
+                    break;
+                case MoveState.AirDash:
+                    if (isKeyIdle(48)) {
+                        charMoveState = MoveState.Air;
+                    }
+                    else if (isOnGround) {
+                        charMoveState = MoveState.Dash;
+                    }
+                    break;
+            }
+
+            //charFireState
+            switch (charFireState) {
+                case FireState.Fire:
+                    if (isKeyDown(KeyMap.Fire)) {
+                        charFireState = FireState.Fire;
+                    }
+                    break;
+                case FireState.Safe:
+                    if (isKeyIdle(2)) {
+                        charFireState = FireState.Safe;
                     }
                     break;
             }
 
             //charJumpState
-            if (isKeyDown(KeyMap.Jump)) {
-                if (isOnGround)
-                    charJumpState = JumpState.Jump;
-            }
-            else {
-                charJumpState = JumpState.Idle;
+            switch (charJumpState) {
+                case JumpState.Idle:
+                    if (isKeyDown(KeyMap.Jump)) {
+                        if (isOnGround) {
+                            charJumpState = JumpState.Jump;
+                        }
+                    }
+                    break;
+                case JumpState.Jump:
+                    if (isKeyIdle(65)) {         //01000001
+                        charJumpState = JumpState.Idle;
+                    }
+                    break;
             }
 
             //charDirectionState
             switch (charDirectionState) {
                 case DirectionState.Forward:
-                    if (isKeyDown(KeyMap.Up)) charDirectionState = DirectionState.Up;
-                    if (isKeyDown(KeyMap.Down)) charDirectionState = DirectionState.Down;
                     if (isKeyDown(KeyMap.Backward)) charDirectionState = DirectionState.Backward;
+                    else if (isKeyDown(KeyMap.Down)) charDirectionState = DirectionState.Down;
+                    else if (isKeyDown(KeyMap.Up)) charDirectionState = DirectionState.Up;
                     break;
                 case DirectionState.Up:
-                    if (isKeyDown(KeyMap.Down)) charDirectionState = DirectionState.Down;
-                    if (isKeyIdle(208)) charDirectionState = DirectionState.Forward;        //11010000
                     if (isKeyDown(KeyMap.Backward)) charDirectionState = DirectionState.Backward;
+                    else if (isKeyIdle(208)) charDirectionState = DirectionState.Forward;        //11010000
+                    else if (isKeyDown(KeyMap.Down)) charDirectionState = DirectionState.Down;
                     break;
                 case DirectionState.Down:
-                    if (isKeyDown(KeyMap.Up)) charDirectionState = DirectionState.Up;
-                    if (isKeyIdle(208)) charDirectionState = DirectionState.Forward;
                     if (isKeyDown(KeyMap.Backward)) charDirectionState = DirectionState.Backward;
+                    else if (isKeyIdle(208)) charDirectionState = DirectionState.Forward;
+                    else if (isKeyDown(KeyMap.Up)) charDirectionState = DirectionState.Up;
                     break;
                 case DirectionState.Backward:
-                    if (isKeyIdle(208)) charDirectionState = DirectionState.Forward;
-                    if (isKeyDown(KeyMap.Up)) charDirectionState = DirectionState.Up;
                     if (isKeyDown(KeyMap.Down)) charDirectionState = DirectionState.Down;
+                    else if (isKeyDown(KeyMap.Up)) charDirectionState = DirectionState.Up;
+                    else if (isKeyIdle(208)) charDirectionState = DirectionState.Forward;
                     break;
             }
 
             //State Processing
+            if ((charDamageState != DamageState.Damaged) && (charDamageState != DamageState.Defeated)) {
+                switch (charMoveState) {
+                    case MoveState.Stand:
+                        if (playerRigidbody2D.velocity.x != 0) {
+                            playerRigidbody2D.velocity = new Vector2(0, playerRigidbody2D.velocity.y);
+                        }
+                        break;
+                    case MoveState.Walk:
+                        if (playerRigidbody2D.velocity.x != horizontalInput * maxWalkSpeed) {
+                            playerRigidbody2D.velocity = new Vector2(horizontalInput * maxWalkSpeed,
+                                playerRigidbody2D.velocity.y);
+                        }
+                        break;
+                    case MoveState.Dash:
+                        if (playerRigidbody2D.velocity.x != horizontalInput * maxDashSpeed) {
+                            playerRigidbody2D.velocity = new Vector2(horizontalInput * maxDashSpeed,
+                                playerRigidbody2D.velocity.y);
+                        }
+                        break;
+                    case MoveState.Air:
+                        if (playerRigidbody2D.velocity.x != 0) {
+                            playerRigidbody2D.velocity = new Vector2(0, playerRigidbody2D.velocity.y);
+                        }
+                        break;
+                    case MoveState.AirWalk:
+                        if (playerRigidbody2D.velocity.x != horizontalInput * maxWalkSpeed) {
+                            playerRigidbody2D.velocity = new Vector2(horizontalInput * maxWalkSpeed,
+                            playerRigidbody2D.velocity.y);
+                        }
+                        break;
+                    case MoveState.AirDash:
+                        if (playerRigidbody2D.velocity.x != horizontalInput * maxDashSpeed) {
+                            playerRigidbody2D.velocity = new Vector2(horizontalInput * maxDashSpeed,
+                            playerRigidbody2D.velocity.y);
+                        }
+                        break;
+                }
 
-            switch (charMoveState) {
-                case MoveState.Stand:
-                    if (playerRigidbody2D.velocity.x != 0) {
-                        playerRigidbody2D.velocity = new Vector2(0, playerRigidbody2D.velocity.y);
-                    }
-                    break;
-                case MoveState.Walk:
-                    if (playerRigidbody2D.velocity.x != horizontalInput * maxWalkSpeed) { 
-                        playerRigidbody2D.velocity = new Vector2(horizontalInput * maxWalkSpeed,
-                            playerRigidbody2D.velocity.y);
-                    }
-                    break;
-                case MoveState.AirDash:
-                    /*
-                    playerRigidbody2D.velocity = new Vector2(horizontalInput * maxDashSpeed,
-                    playerRigidbody2D.velocity.y);
-                    break;
-                    */
-                case MoveState.AirWalk:
-                    if (playerRigidbody2D.velocity.x == 0) {
-                        playerRigidbody2D.velocity = new Vector2(horizontalInput * maxWalkSpeed,
-                        playerRigidbody2D.velocity.y);
-                    }
-                    break;
-                case MoveState.Dash:
-                    if (playerRigidbody2D.velocity.x != horizontalInput * maxDashSpeed) { 
-                        playerRigidbody2D.velocity = new Vector2(horizontalInput * maxDashSpeed,
-                            playerRigidbody2D.velocity.y);
-                    }
-                    break;
-                case MoveState.Air:
-                    if (playerRigidbody2D.velocity.x != 0) { 
-                        playerRigidbody2D.velocity = new Vector2(0, playerRigidbody2D.velocity.y);
-                    }
-                    break;
-                case MoveState.Damaged:
+                switch (charJumpState) {
+                    case JumpState.Jump:
+                        if (jumpTimer < 3) {
+                            if (jumpTimer == 0) {
+                                playerAnimator.SetTrigger("Jump");
+                            }
+                            playerRigidbody2D.AddForce(Vector2.up * jumpPower);
+                            jumpTimer++;
+                        }
+                        break;
+
+                    case JumpState.Idle:
+                        jumpTimer = 0;
+                        break;
+                }
+
+                switch (charFireState) {
+                    case FireState.Safe:
+                        playerAnimator.SetBool("Fire", false);
+                        if (fireTimer != normalFireDelay) fireTimer = 0;
+                        break;
+                    case FireState.Fire:
+                        playerAnimator.SetBool("Fire", true);
+                        if (fireTimer == 0) {
+                            GenerateBullet(currentFire);
+                            if (currentFire != CharacterInfo.FireType.Normal) {
+                                fireCount--;
+                                if (fireCount == 0) {
+                                    currentFire = CharacterInfo.FireType.Normal;
+                                    fireDelay = normalFireDelay;
+                                }
+                            }
+                        }
+                        fireTimer++;
+                        if (fireTimer == fireDelay) fireTimer = 0;
+                        break;
+
+
+                }
+
+                switch (charDirectionState) {
+                    case DirectionState.Backward:
+                        isFacingLeft = !isFacingLeft;
+                        transform.rotation = Quaternion.Euler(transform.rotation.x, isFacingLeft ? 180 : 0, transform.rotation.z);
+                        break;
+                }
+
+            }
+
+            switch (charDamageState) {
+                case DamageState.Damaged:
                     if (repelTimer == 0) {
+                        charMoveState = MoveState.Stand;
                         charJumpState = JumpState.Idle;
-                        charFireState = MoveState.Safe;
-                        isInvincible = true;
+                        charFireState = FireState.Safe;
                         playerRigidbody2D.velocity = new Vector2(transform.right.x * repelForce.x, transform.up.y * repelForce.y);
 
                         playerAnimator.SetTrigger("Damaged");
                     }
                     repelTimer++;
                     if (repelTimer == repelTime) {
-                        charMoveState = MoveState.Stand;
+                        charDamageState = DamageState.Muteki;
                         playerAnimator.SetTrigger("repelFinish");
                         repelTimer = 0;
                     }
-                    
+                    break;
+                case DamageState.Defeated:
 
                     break;
-                case MoveState.Defeated:
-
-                    break;
-            }
-
-            switch (charJumpState) {
-                case JumpState.Jump:
-                    if (jumpTimer < 3) {
-                        if (jumpTimer == 0) {
-                            playerAnimator.SetTrigger("Jump");
-                        }
-
-                        playerRigidbody2D.AddForce(Vector2.up * jumpPower);
-                        /*
-                        switch (charMoveState) {
-                            //case MoveState.Stand:
-                                //charMoveState = MoveState.Air;
-                                //break;
-                            case MoveState.Walk:
-                                charMoveState = MoveState.AirWalk;
-                                break;
-                            case MoveState.Dash:
-                                charMoveState = MoveState.AirDash;
-                                break;
-
-                        }
-                        */
-                        jumpTimer++;
+                case DamageState.Muteki:
+                    if (mutekiTimer % 2 == 0) {
+                        playerSpriteRenderer.color = new Color(1f, 1f, 1f, 0f);
                     }
-                    break;
-                
-                case JumpState.Idle:
-                    jumpTimer = 0;
-                    break;
-            }
-
-            switch (charFireState) {
-                case MoveState.Safe:
-                    playerAnimator.SetBool("Fire", false);
-                    if (fireTimer != normalFireDelay) fireTimer = 0;
-                    break;
-                case MoveState.Fire:
-                    playerAnimator.SetBool("Fire", true);
-                    if (fireTimer == 0) {
-                        GenerateBullet(currentFire);
-                        if (currentFire != CharacterInfo.FireType.Normal) {
-                            fireCount--;
-                            if (fireCount == 0) {
-                                currentFire = CharacterInfo.FireType.Normal;
-                                fireDelay = normalFireDelay;
-                            }
-                        }
+                    else {
+                        playerSpriteRenderer.color = new Color(1f, 1f, 1f, 1f);
                     }
-                    fireTimer++;
-                    if (fireTimer == fireDelay) fireTimer = 0;
-                    break;
-
-                    
-            }
-
-            switch (charDirectionState) {
-                case DirectionState.Backward:
-                    isFacingLeft = !isFacingLeft;
-                    transform.rotation = Quaternion.Euler(transform.rotation.x, isFacingLeft ? 180 : 0, transform.rotation.z);
+                    mutekiTimer++;
+                    if (mutekiTimer == mutekiTime) {
+                        playerSpriteRenderer.color = new Color(1f, 1f, 1f, 1f);
+                        charDamageState = DamageState.Ok;
+                        mutekiTimer = 0;
+                    }
                     break;
             }
 
@@ -510,27 +510,8 @@ namespace MarisaStrike {
             if (playerRigidbody2D.velocity.y < -20f) {
                 playerRigidbody2D.velocity = new Vector2(playerRigidbody2D.velocity.x, -20f);
             }
-            
-            //Invincibility handling
-
-            if (isInvincible) {
-                if (invinTimer % 2 == 0) {
-                    playerSpriteRenderer.color = new Color(1f, 1f, 1f, 0f);
-                    
-                }
-                else {
-                    playerSpriteRenderer.color = new Color(1f, 1f, 1f, 1f);
-                }
-                invinTimer++;
-                if (invinTimer == invinTime) {
-                    playerSpriteRenderer.color = new Color(1f, 1f, 1f, 1f);
-                    isInvincible = false;
-                    invinTimer = 0;
-                }
-            }
 
             //Animation related
-
             playerAnimator.SetFloat("Horizontal", playerRigidbody2D.velocity.x);
             playerAnimator.SetFloat("Vertical", playerRigidbody2D.velocity.y);
         }
@@ -555,7 +536,7 @@ namespace MarisaStrike {
             return keyHoldTimeQueue[MAX_QUEUE_COUNT - pos] <= time;
         }
 
-        void CheckIsOnGround() {
+        private void CheckIsOnGround() {
             Vector2 pos = transform.position;
             Vector2 leftup = new Vector2(pos.x + playerCircleCollider2D.center.x - 0.98f * playerCircleCollider2D.radius,
                                         pos.y + playerCircleCollider2D.center.y);
@@ -565,8 +546,8 @@ namespace MarisaStrike {
             isOnGround = Physics2D.OverlapArea(leftup, rightdown, terrainLayer);
             playerAnimator.SetBool("isOnGround", isOnGround);
         }
-        
-        void GenerateBullet(CharacterInfo.FireType type) {
+
+        private void GenerateBullet(CharacterInfo.FireType type) {
             switch (type) {
                 case CharacterInfo.FireType.Normal:
                     Rigidbody2D bulletClone = (Rigidbody2D)Instantiate(normalFire, transform.position, transform.rotation);
@@ -584,7 +565,7 @@ namespace MarisaStrike {
         }
         
         //Enums
-        enum MoveState {
+        private enum MoveState {
             Stand,
             Walk,
             Crouch,
@@ -593,25 +574,14 @@ namespace MarisaStrike {
             Air,
             AirWalk,
             AirDash,
-
-            Damaged,
-            Defeated,
-
-            Jump,
-
-            Safe,
-            Fire
-
-            
         };
 
-        enum JumpState {
+        private enum JumpState {
             Idle,
-            Jump,
-            Landed
+            Jump
         }
 
-        enum FireState {
+        private enum FireState {
             Safe,
             Fire
         }

@@ -17,19 +17,9 @@ namespace MarisaStrike {
             selfDestroyTime = -1;
         }
 
-
-
         void Start() {
             selfDestroyTimer = 0;
         }
-
-
-
-        void Update() {
-
-        }
-
-
 
         void FixedUpdate() {
             if (selfDestroyTime > 0) {
@@ -39,8 +29,6 @@ namespace MarisaStrike {
                 }
             }
         }
-
-
 
         void OnTriggerEnter2D(Collider2D other) {
             if ((other.tag == "Terrain") || (other.tag == "Enemy")) {
