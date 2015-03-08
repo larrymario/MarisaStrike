@@ -33,7 +33,6 @@ namespace MarisaStrike {
 
 
         void FixedUpdate() {
-
             damageTimer++;
             animationTimer++;
 
@@ -44,7 +43,7 @@ namespace MarisaStrike {
 
         void OnTriggerEnter2D(Collider2D other) {
             if ((other.tag == "Player")) {
-                ExecuteEvents.Execute<ICharacter>(other.gameObject, null, (x, y) => x.GetDamaged(damage));
+                other.GetComponent<Marisa>().GetDamaged(damage);
             }
 
         }

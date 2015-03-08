@@ -50,7 +50,7 @@ namespace MarisaStrike {
 
         void OnTriggerEnter2D(Collider2D other) {
             if ((other.tag == "Enemy")) {
-                ExecuteEvents.Execute<IEnemy>(other.gameObject, null, (x, y) => x.getDamaged(damage));
+                other.GetComponent<Enemy>().getDamaged(damage);
             }
 
         }

@@ -2,26 +2,20 @@
 
 namespace MarisaStrike {
 
-    public class Bullet : MonoBehaviour {
-
-        public int damage;
-        public int speed;
-        public int selfDestroyTime;            //Minus value available, meaning the bullet won't self-destroy
-        public Rigidbody2D damageZone;
-
-        private int selfDestroyTimer;
-
-
-
-        void Reset() {
-            selfDestroyTime = -1;
-        }
+    public class HGBullet : Bullet {
 
         void Start() {
-            selfDestroyTimer = 0;
+            base.Start();
         }
 
         void FixedUpdate() {
+            if (!isAdjusted) {
+                Vector3 speed3D = new Vector3(1, 0, 0);
+                speed3D = rotation * speed3D;
+                bulletRigidbody2D.velocity = new Vector2(speed3D.x, speed3D.y) * this.speed;
+                isAdjusted = true;
+            }
+
             if (selfDestroyTime > 0) {
                 selfDestroyTimer++;
                 if (selfDestroyTimer == selfDestroyTime) {

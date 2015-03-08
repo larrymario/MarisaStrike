@@ -251,17 +251,6 @@ namespace MarisaStrike {
 
             //if ((charMoveState != MoveState.Damaged) && (charMoveState != MoveState.Defeated)) {
 
-                //charFireState
-
-                if ((keyCode & (uint)KeyMap.Fire) > 0) {
-                    charFireState = FireState.Fire;
-                }
-                else {
-                    charFireState = FireState.Safe;
-                }
-
-            //}
-
             //New
             
             //charMoveState
@@ -327,12 +316,12 @@ namespace MarisaStrike {
 
             //charFireState
             switch (charFireState) {
-                case FireState.Fire:
+                case FireState.Safe:
                     if (isKeyDown(KeyMap.Fire)) {
                         charFireState = FireState.Fire;
                     }
                     break;
-                case FireState.Safe:
+                case FireState.Fire:
                     if (isKeyIdle(2)) {
                         charFireState = FireState.Safe;
                     }
@@ -548,10 +537,19 @@ namespace MarisaStrike {
         }
 
         private void GenerateBullet(CharacterInfo.FireType type) {
+            Quaternion rotation = Quaternion.Euler(0, 0, 0);
+            if (charDirectionState == DirectionState.Up) {
+                rotation = Quaternion.Euler(0, 0, 90.0f);
+            }
+            else if (isFacingLeft) {
+                rotation = Quaternion.Euler(0, 0, 180.0f);
+            }
+            print("s");
             switch (type) {
                 case CharacterInfo.FireType.Normal:
                     Rigidbody2D bulletClone = (Rigidbody2D)Instantiate(normalFire, transform.position, transform.rotation);
-                    bulletClone.velocity = new Vector2(isFacingLeft ? -1 : 1, 0) * normalFire.GetComponent<Bullet>().speed;
+                    bulletClone.GetComponent<Bullet>().setDirection(rotation);
+                    //bulletClone.velocity = new Vector2(isFacingLeft ? -1 : 1, 0) * normalFire.GetComponent<Bullet>().speed;
                     break;
                 case CharacterInfo.FireType.Weapon1:
                     Rigidbody2D bulletClone1 = (Rigidbody2D)Instantiate(weapon1Fire, 
