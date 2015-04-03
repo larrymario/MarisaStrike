@@ -541,10 +541,14 @@ namespace MarisaStrike {
             if (charDirectionState == DirectionState.Up) {
                 rotation = Quaternion.Euler(0, 0, 90.0f);
             }
+            else if (charDirectionState == DirectionState.Down && (!isOnGround)) {
+                rotation = Quaternion.Euler(0, 0, 270.0f);
+            }
             else if (isFacingLeft) {
                 rotation = Quaternion.Euler(0, 0, 180.0f);
             }
-            print("s");
+            
+
             switch (type) {
                 case CharacterInfo.FireType.Normal:
                     Rigidbody2D bulletClone = (Rigidbody2D)Instantiate(normalFire, transform.position, transform.rotation);
